@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { 
@@ -13,12 +13,14 @@ import {
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('deposit');
   const [loading, setLoading] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
   const { items, getCartTotals, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -37,22 +39,105 @@ const CheckoutPage = () => {
 
   const { subtotal, shippingCost, total, itemCount } = getCartTotals();
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
+  };
+
+  useEffect(() => {
+    // Get wallet balance from localStorage
+    const storedBalance = localStorage.getItem(`wallet_${user?.id}`);
+    if (storedBalance) {
+      setWalletBalance(parseFloat(storedBalance));
+    } else if (user?.walletBalance !== undefined) {
+      setWalletBalance(user.walletBalance);
+    }
+  }, [user]);
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
+      // Check if using wallet payment and has sufficient balance
+      if (paymentMethod === 'deposit') {
+        if (walletBalance < total) {
+          toast.error('Insufficient wallet balance. Please add funds or choose another payment method.');
+          setLoading(false);
+          return;
+        }
+        
+        // Deduct amount from wallet
+        const newBalance = walletBalance - total;
+        setWalletBalance(newBalance);
+        
+        // Update localStorage
+        localStorage.setItem(`wallet_${user?.id}`, newBalance.toString());
+        
+        // Create transaction record
+        const transactions = JSON.parse(localStorage.getItem(`transactions_${user?.id}`) || '[]');
+        const newTransaction = {
+          id: 'TXN' + Date.now(),
+          type: 'purchase',
+          amount: -total,
+          description: `Order payment - ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`,
+          date: new Date().toISOString(),
+          status: 'completed',
+          orderNumber: 'ORD-' + Date.now()
+        };
+        
+        const updatedTransactions = [newTransaction, ...transactions];
+        localStorage.setItem(`transactions_${user?.id}`, JSON.stringify(updatedTransactions));
+        
+        // Update user context
+        if (updateUser) {
+          updateUser({ ...user, walletBalance: newBalance });
+        }
+      }
+      
+      // Create order object
+      const orderId = 'ORD-' + Date.now();
+      const newOrder = {
+        id: orderId,
+        date: new Date().toISOString(),
+        status: 'confirmed',
+        total: total,
+        subtotal: subtotal,
+        shippingCost: shippingCost,
+        paymentMethod: paymentMethod,
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          image: item.image
+        })),
+        shippingAddress: data,
+        createdAt: new Date().toISOString()
+      };
+
+      // Save order to localStorage
+      const existingOrders = JSON.parse(localStorage.getItem(`orders_${user?.id}`) || '[]');
+      const updatedOrders = [newOrder, ...existingOrders];
+      localStorage.setItem(`orders_${user?.id}`, JSON.stringify(updatedOrders));
+
       // Simulate order processing
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Clear cart and redirect to success page
       clearCart();
+      toast.success('Order placed successfully!');
       navigate('/orders', { 
         state: { 
           orderSuccess: true, 
-          orderId: 'ORD-' + Date.now() 
+          orderId: orderId,
+          paymentMethod: paymentMethod,
+          total: total
         } 
       });
     } catch (error) {
       console.error('Order failed:', error);
+      toast.error('Order failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -247,19 +332,28 @@ const CheckoutPage = () => {
                         />
                         <Wallet className="w-6 h-6 text-primary-600" />
                         <div className="flex-1">
-                          <p className="font-medium text-secondary-900">Deposit Account</p>
+                          <p className="font-medium text-secondary-900">Wallet Payment</p>
                           <p className="text-sm text-secondary-600">
-                            Current Balance: ₹{user?.depositAccount?.balance?.toFixed(2) || '0.00'}
+                            Current Balance: {formatCurrency(walletBalance)}
                           </p>
                         </div>
-                        {(user?.depositAccount?.balance || 0) >= total && (
+                        {walletBalance >= total && (
                           <CheckCircle className="w-5 h-5 text-green-600" />
                         )}
                       </div>
-                      {(user?.depositAccount?.balance || 0) < total && (
-                        <p className="text-sm text-red-600 mt-2 ml-9">
-                          Insufficient balance. Please add funds to your account.
-                        </p>
+                      {walletBalance < total && (
+                        <div className="mt-2 ml-9">
+                          <p className="text-sm text-red-600">
+                            Insufficient balance. Need {formatCurrency(total - walletBalance)} more.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => navigate('/wallet')}
+                            className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                          >
+                            Add funds to wallet →
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -367,7 +461,7 @@ const CheckoutPage = () => {
                 type="submit"
                 disabled={
                   loading || 
-                  (paymentMethod === 'deposit' && (user?.depositAccount?.balance || 0) < total)
+                  (paymentMethod === 'deposit' && walletBalance < total)
                 }
                 className="btn-primary w-full btn-lg"
               >

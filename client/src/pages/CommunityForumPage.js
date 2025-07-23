@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MessageSquare, 
   Users, 
@@ -13,85 +13,37 @@ import {
   Pin,
   Star,
   Eye,
-  Award
+  Award,
+  MessagesSquare
 } from 'lucide-react';
 
 const CommunityForumPage = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('recent');
+  const [discussions, setDiscussions] = useState([]);
 
-  // Sample forum data
-  const categories = [
-    { id: 'all', name: 'All Discussions', count: 156, icon: MessageSquare },
-    { id: 'general', name: 'General Discussion', count: 45, icon: Users },
-    { id: 'identification', name: 'Stamp Identification', count: 38, icon: Search },
-    { id: 'collecting-tips', name: 'Collecting Tips', count: 28, icon: Star },
-    { id: 'market-trends', name: 'Market & Trends', count: 22, icon: TrendingUp },
-    { id: 'exhibitions', name: 'Exhibitions & Events', count: 15, icon: Award },
-    { id: 'technical', name: 'Technical Questions', count: 8, icon: MessageSquare }
-  ];
-
-  const discussions = [
-    {
-      id: '1',
-      title: 'How to identify genuine vs fake Gandhi stamps?',
-      author: 'PhilatelyExpert',
-      authorAvatar: '👨‍🏫',
-      category: 'identification',
-      isPinned: true,
-      createdAt: '2024-01-15T10:30:00Z',
-      lastActivity: '2024-01-15T15:45:00Z',
-      replies: 23,
-      views: 456,
-      likes: 18,
-      tags: ['authentication', 'gandhi', 'tips'],
-      excerpt: 'I recently acquired some Gandhi commemorative stamps and want to verify their authenticity. What are the key features to look for?'
-    },
-    {
-      id: '2',
-      title: 'Best practices for storing rare stamps',
-      author: 'CollectorPro',
-      authorAvatar: '👩‍💼',
-      category: 'collecting-tips',
-      createdAt: '2024-01-14T14:20:00Z',
-      lastActivity: '2024-01-15T12:30:00Z',
-      replies: 15,
-      views: 234,
-      likes: 12,
-      tags: ['storage', 'preservation', 'rare-stamps'],
-      excerpt: 'Looking for advice on proper storage methods for valuable stamps. Temperature, humidity, and container recommendations?'
-    },
-    {
-      id: '3',
-      title: 'Upcoming Delhi Philatelic Exhibition 2024',
-      author: 'EventsAdmin',
-      authorAvatar: '🎪',
-      category: 'exhibitions',
-      createdAt: '2024-01-13T09:15:00Z',
-      lastActivity: '2024-01-14T18:20:00Z',
-      replies: 8,
-      views: 189,
-      likes: 25,
-      tags: ['delhi', 'exhibition', '2024', 'event'],
-      excerpt: 'Official announcement for the Delhi Philatelic Exhibition. Registration details, dates, and special attractions.'
-    },
-    {
-      id: '4',
-      title: 'Market trends for Indian commemorative stamps',
-      author: 'MarketAnalyst',  
-      authorAvatar: '📈',
-      category: 'market-trends',
-      createdAt: '2024-01-12T16:45:00Z',
-      lastActivity: '2024-01-13T11:10:00Z',
-      replies: 12,
-      views: 345,
-      likes: 9,
-      tags: ['market', 'commemorative', 'trends', 'analysis'],
-      excerpt: 'Analysis of price trends for Indian commemorative stamps over the past year. Which themes are gaining value?'
+  useEffect(() => {
+    // Load discussions from localStorage (user-generated content)
+    const storedDiscussions = localStorage.getItem('forum_discussions');
+    if (storedDiscussions) {
+      setDiscussions(JSON.parse(storedDiscussions));
     }
+  }, []);
+
+  // Dynamic categories based on discussions
+  const categories = [
+    { id: 'all', name: 'All Discussions', count: discussions.length, icon: MessageSquare },
+    { id: 'general', name: 'General Discussion', count: discussions.filter(d => d.category === 'general').length, icon: Users },
+    { id: 'identification', name: 'Stamp Identification', count: discussions.filter(d => d.category === 'identification').length, icon: Search },
+    { id: 'collecting-tips', name: 'Collecting Tips', count: discussions.filter(d => d.category === 'collecting-tips').length, icon: Star },
+    { id: 'market-trends', name: 'Market & Trends', count: discussions.filter(d => d.category === 'market-trends').length, icon: TrendingUp },
+    { id: 'exhibitions', name: 'Exhibitions & Events', count: discussions.filter(d => d.category === 'exhibitions').length, icon: Award },
+    { id: 'technical', name: 'Technical Questions', count: discussions.filter(d => d.category === 'technical').length, icon: MessageSquare }
   ];
 
+  // Filter discussions
+  // Sample top contributors (can be made dynamic later)
   const topContributors = [
     { name: 'PhilatelyExpert', avatar: '👨‍🏫', posts: 234, reputation: 1250 },
     { name: 'CollectorPro', avatar: '👩‍💼', posts: 189, reputation: 980 },
@@ -100,10 +52,11 @@ const CommunityForumPage = () => {
   ];
 
   const filteredDiscussions = discussions.filter(discussion => {
-    const matchesCategory = activeCategory === 'all' || discussion.category === activeCategory;
-    const matchesSearch = discussion.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         discussion.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         discussion.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = activeCategory === 'all' || discussion.category === activeCategory; 
+    const matchesSearch = searchTerm === '' || 
+      discussion.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      discussion.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (discussion.tags && discussion.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
     return matchesCategory && matchesSearch;
   });
 
@@ -258,7 +211,7 @@ const CommunityForumPage = () => {
 
             {/* Discussions List */}
             <div className="space-y-4">
-              {sortedDiscussions.map((discussion) => (
+              {filteredDiscussions.length > 0 ? filteredDiscussions.map((discussion) => (
                 <div key={discussion.id} className="card hover:shadow-md transition-shadow">
                   <div className="card-body">
                     <div className="flex items-start space-x-4">
@@ -323,34 +276,29 @@ const CommunityForumPage = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="card">
+                  <div className="card-body text-center py-12">
+                    <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <MessagesSquare className="w-12 h-12 text-secondary-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+                      No discussions yet
+                    </h3>
+                    <p className="text-secondary-600 mb-4">
+         Community discussions will appear here when users start conversations.
+                                 </p>
+                    <button className="btn-primary">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Start New Discussion
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {sortedDiscussions.length === 0 && (
-              <div className="card">
-                <div className="card-body text-center py-12">
-                  <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-12 h-12 text-secondary-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-secondary-900 mb-2">
-                    No discussions found
-                  </h3>
-                  <p className="text-secondary-600 mb-4">
-                    {searchTerm 
-                      ? 'Try adjusting your search terms or browse different categories.'
-                      : 'Be the first to start a discussion in this category!'
-                    }
-                  </p>
-                  <button className="btn-primary">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Start New Discussion
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Pagination */}
-            {sortedDiscussions.length > 0 && (
+            {filteredDiscussions.length > 0 && (
               <div className="flex justify-center mt-8">
                 <div className="flex items-center space-x-2">
                   <button className="btn-outline">Previous</button>

@@ -11,7 +11,8 @@ import {
   Settings,
   Heart,
   Package,
-  Star
+  Star,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
@@ -145,6 +146,14 @@ const Header = () => {
                   >
                     <Star className="w-4 h-4 mr-3" />
                     My Collection
+                  </Link>
+                  <Link
+                    to="/wallet"
+                    className="flex items-center px-3 py-2 text-sm text-secondary-700 hover:bg-secondary-50 rounded-lg transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Wallet className="w-4 h-4 mr-3" />
+                    My Wallet
                   </Link>
                   <Link
                     to="/profile"

@@ -67,61 +67,41 @@ const LoginPage = () => {
   };
 
   const handleDemoLogin = async () => {
-    // Demo credentials for testing
-    const demoCredentials = {
-      user: {
-        email: 'user@demo.com',
-        password: 'user123'
-      },
-      admin: {
-        email: 'admin@demo.com',
-        password: 'admin123'
-      }
+    // Simple validation - accept any email/password for demo
+    if (!formData.email || !formData.password) {
+      throw new Error('Please enter email and password');
+    }
+
+    // Create user based on input
+    const mockUser = {
+      id: formData.userType === 'admin' ? 'admin-' + Date.now() : 'user-' + Date.now(),
+      name: formData.email.split('@')[0], // Use email prefix as name
+      email: formData.email,
+      role: formData.userType,
+      isAdmin: formData.userType === 'admin',
+      avatar: null,
+      joinDate: new Date().toISOString().split('T')[0],
+      walletBalance: formData.userType === 'user' ? 0 : undefined // Only users have wallets
     };
 
-    const targetCredentials = demoCredentials[formData.userType];
+    const mockToken = 'jwt-token-' + formData.userType + '-' + Date.now();
 
-    if (formData.email === targetCredentials.email && formData.password === targetCredentials.password) {
-      // Simulate successful login
-      const mockUser = {
-        id: formData.userType === 'admin' ? 'admin-1' : 'user-1',
-        name: formData.userType === 'admin' ? 'Admin User' : 'Demo User',
-        email: formData.email,
-        role: formData.userType,
-        isAdmin: formData.userType === 'admin',
-        avatar: null,
-        joinDate: '2024-01-01'
-      };
+    // Save to localStorage
+    localStorage.setItem('token', mockToken);
+    localStorage.setItem('user', JSON.stringify(mockUser));
 
-      const mockToken = 'demo-jwt-token-' + formData.userType;
-
-      // Save to localStorage
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-
-      // Call login from context
-      await login({ user: mockUser, token: mockToken });
-      
-      return true;
-    } else {
-      throw new Error('Invalid credentials');
-    }
+    // Call login from context
+    await login({ user: mockUser, token: mockToken });
+    
+    return true;
   };
 
   const handleQuickLogin = (type) => {
-    if (type === 'admin') {
-      setFormData({
-        email: 'admin@demo.com',
-        password: 'admin123',
-        userType: 'admin'
-      });
-    } else {
-      setFormData({
-        email: 'user@demo.com',
-        password: 'user123',
-        userType: 'user'
-      });
-    }
+    setFormData({
+      email: '',
+      password: '',
+      userType: type
+    });
   };
 
   return (
@@ -149,28 +129,13 @@ const LoginPage = () => {
           </p>
         </div>
 
-        {/* Demo Credentials Info */}
+        {/* Login Info */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-blue-700">Admin:</span>
-              <button
-                onClick={() => handleQuickLogin('admin')}
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                admin@demo.com / admin123
-              </button>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-blue-700">User:</span>
-              <button
-                onClick={() => handleQuickLogin('user')}
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                user@demo.com / user123
-              </button>
-            </div>
+          <h3 className="text-sm font-medium text-blue-900 mb-2">Getting Started:</h3>
+          <div className="text-sm text-blue-700">
+            <p>• Enter any valid email address</p>
+            <p>• Use any password to login</p>
+            <p>• Choose User for shopping or Admin for management</p>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   Video, 
@@ -14,213 +14,72 @@ import {
   CheckCircle,
   Trophy,
   Target,
-  Lightbulb
+  Lightbulb,
+  GraduationCap
 } from 'lucide-react';
 
 const EducationHubPage = () => {
   const [activeTab, setActiveTab] = useState('courses');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
+  const [courses, setCourses] = useState([]);
+  const [resources, setResources] = useState([]);
+  const [achievements, setAchievements] = useState([]);
 
-  // Sample educational content
-  const courses = [
-    {
-      id: '1',
-      title: 'Introduction to Philately',
-      description: 'Complete beginner\'s guide to stamp collecting and philatelic terminology',
-      instructor: 'Dr. Rajesh Kumar',
-      instructorAvatar: '👨‍🏫',
-      level: 'beginner',
-      duration: '4 weeks',
-      lessons: 16,
-      students: 1247,
-      rating: 4.8,
-      reviews: 89,
-      price: 2499,
-      image: '📚',
-      tags: ['basics', 'terminology', 'history'],
-      progress: 0,
-      isEnrolled: false,
-      syllabus: [
-        'History of Postal Systems',
-        'Types of Stamps and Postal Items',
-        'Basic Collecting Techniques',
-        'Philatelic Terminology'
-      ]
-    },
-    {
-      id: '2',
-      title: 'Stamp Authentication Techniques',
-      description: 'Learn professional methods to authenticate rare and valuable stamps',
-      instructor: 'Prof. Anil Gupta',
-      instructorAvatar: '👨‍🔬',
-      level: 'advanced',
-      duration: '6 weeks',
-      lessons: 24,
-      students: 456,
-      rating: 4.9,
-      reviews: 67,
-      price: 4999,
-      image: '🔍',
-      tags: ['authentication', 'expertise', 'valuation'],
-      progress: 65,
-      isEnrolled: true,
-      syllabus: [
-        'Watermark Analysis',
-        'Perforation Measurement',
-        'Paper and Gum Analysis',
-        'Printing Techniques Recognition'
-      ]
-    },
-    {
-      id: '3',
-      title: 'Indian Postal History',
-      description: 'Comprehensive study of Indian postal systems from ancient times to modern era',
-      instructor: 'Ms. Priya Sharma',
-      instructorAvatar: '👩‍🏫',
-      level: 'intermediate',
-      duration: '8 weeks',
-      lessons: 32,
-      students: 789,
-      rating: 4.7,
-      reviews: 123,
-      price: 3499,
-      image: '🏛️',
-      tags: ['history', 'indian-post', 'heritage'],
-      progress: 0,
-      isEnrolled: false,
-      syllabus: [
-        'Ancient Communication Systems',
-        'British Colonial Postal System',
-        'Post-Independence Developments',
-        'Modern Digital Integration'
-      ]
+  useEffect(() => {
+    // Load educational content from localStorage (managed by admin)
+    const storedCourses = localStorage.getItem('admin_courses');
+    if (storedCourses) {
+      setCourses(JSON.parse(storedCourses));
     }
-  ];
 
-  const tutorials = [
-    {
-      id: '1',
-      title: 'How to Properly Store Rare Stamps',
-      type: 'video',
-      duration: '12:45',
-      views: 15623,
-      difficulty: 'beginner',
-      thumbnail: '📦',
-      author: 'Storage Expert',
-      publishedAt: '2024-01-10'
-    },
-    {
-      id: '2',
-      title: 'Identifying Watermarks in Indian Stamps',
-      type: 'video',
-      duration: '18:30',
-      views: 8934,
-      difficulty: 'intermediate',
-      thumbnail: '💧',
-      author: 'Authentication Pro',
-      publishedAt: '2024-01-08'
-    },
-    {
-      id: '3',
-      title: 'Complete Guide to First Day Covers',
-      type: 'article',
-      readTime: '8 min read',
-      views: 12456,
-      difficulty: 'beginner',
-      thumbnail: '📮',
-      author: 'FDC Specialist',
-      publishedAt: '2024-01-05'
+    const storedResources = localStorage.getItem('admin_resources');
+    if (storedResources) {
+      setResources(JSON.parse(storedResources));
     }
-  ];
 
-  const guides = [
-    {
-      id: '1',
-      title: 'Beginner\'s Stamp Collecting Checklist',
-      description: 'Essential items and steps to start your philatelic journey',
-      downloadCount: 2456,
-      fileSize: '2.3 MB',
-      type: 'PDF',
-      icon: '📋'
-    },
-    {
-      id: '2',
-      title: 'Indian Stamp Catalog Reference',
-      description: 'Comprehensive reference guide for Indian stamps 1947-2024',
-      downloadCount: 1789,
-      fileSize: '45.7 MB',
-      type: 'PDF',
-      icon: '📖'
-    },
-    {
-      id: '3',
-      title: 'Philatelic Terminology Dictionary',
-      description: 'Complete glossary of philatelic terms and definitions',
-      downloadCount: 3421,
-      fileSize: '5.1 MB',
-      type: 'PDF',
-      icon: '📚'
+    // Load user achievements
+    const storedAchievements = localStorage.getItem('user_achievements');
+    if (storedAchievements) {
+      setAchievements(JSON.parse(storedAchievements));
     }
-  ];
+  }, []);
 
-  const achievements = [
-    {
-      id: '1',
-      title: 'First Steps',
-      description: 'Complete your first course',
-      icon: '🏅',
-      progress: 0,
-      unlocked: false
-    },
-    {
-      id: '2',
-      title: 'Knowledge Seeker',
-      description: 'Complete 5 tutorials',
-      icon: '🎯',
-      progress: 60,
-      unlocked: false
-    },
-    {
-      id: '3',
-      title: 'Expert Learner',
-      description: 'Complete an advanced course',
-      icon: '🏆',
-      progress: 100,
-      unlocked: true
-    }
-  ];
-
-  const levelOptions = [
-    { value: '', label: 'All Levels' },
-    { value: 'beginner', label: 'Beginner' },
-    { value: 'intermediate', label: 'Intermediate' },
-    { value: 'advanced', label: 'Advanced' }
-  ];
-
+  // Filter courses based on search and level
   const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesLevel = !selectedLevel || course.level === selectedLevel;
+    const matchesSearch = searchTerm === '' || 
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesLevel = selectedLevel === '' || course.level === selectedLevel;
+    
     return matchesSearch && matchesLevel;
   });
 
-  const getLevelColor = (level) => {
-    switch (level) {
-      case 'beginner':
-        return 'bg-green-100 text-green-600';
-      case 'intermediate':
-        return 'bg-yellow-100 text-yellow-600';
-      case 'advanced':
-        return 'bg-red-100 text-red-600';
-      default:
-        return 'bg-secondary-100 text-secondary-600';
-    }
-  };
+  // Filter resources based on search
+  const filteredResources = resources.filter(resource => {
+    return searchTerm === '' || 
+      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
-  const getDifficultyColor = (difficulty) => {
-    return getLevelColor(difficulty);
+  const tabs = [
+    { id: 'courses', label: 'Courses', icon: BookOpen },
+    { id: 'resources', label: 'Resources', icon: FileText },
+    { id: 'achievements', label: 'Achievements', icon: Award }
+  ];
+
+  const levels = ['beginner', 'intermediate', 'advanced'];
+
+  const enrollInCourse = (courseId) => {
+    const updatedCourses = courses.map(course => 
+      course.id === courseId 
+        ? { ...course, isEnrolled: true, progress: 0 }
+        : course
+    );
+    setCourses(updatedCourses);
+    localStorage.setItem('admin_courses', JSON.stringify(updatedCourses));
+    alert('Successfully enrolled in course!');
   };
 
   return (
@@ -232,19 +91,14 @@ const EducationHubPage = () => {
             Education Hub
           </h1>
           <p className="text-secondary-600">
-            Learn philately from beginner basics to expert techniques
+            Learn philatelic techniques, history, and expertise from certified professionals
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center space-x-1 bg-white rounded-lg p-1 mb-6 w-fit">
-          {[
-            { id: 'courses', label: 'Courses', icon: BookOpen },
-            { id: 'tutorials', label: 'Tutorials', icon: Video },
-            { id: 'guides', label: 'Guides', icon: FileText },
-            { id: 'achievements', label: 'Achievements', icon: Award }
-          ].map((tab) => {
-            const Icon = tab.icon;
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-8">
+          {tabs.map((tab) => {
+            const IconComponent = tab.icon;
             return (
               <button
                 key={tab.id}
@@ -255,16 +109,15 @@ const EducationHubPage = () => {
                     : 'text-secondary-600 hover:text-secondary-900'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <IconComponent className="w-4 h-4" />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Courses Tab */}
         {activeTab === 'courses' && (
-          <div>
+          <>
             {/* Search and Filters */}
             <div className="card mb-6">
               <div className="card-body">
@@ -285,9 +138,10 @@ const EducationHubPage = () => {
                       value={selectedLevel}
                       onChange={(e) => setSelectedLevel(e.target.value)}
                     >
-                      {levelOptions.map(option => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
+                      <option value="">All Levels</option>
+                      {levels.map(level => (
+                        <option key={level} value={level}>
+                          {level.charAt(0).toUpperCase() + level.slice(1)}
                         </option>
                       ))}
                     </select>
@@ -297,67 +151,58 @@ const EducationHubPage = () => {
             </div>
 
             {/* Courses Grid */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              {filteredCourses.map((course) => (
+            <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredCourses.length > 0 ? filteredCourses.map((course) => (
                 <div key={course.id} className="card card-hover">
                   <div className="aspect-video bg-gradient-to-br from-primary-100 to-accent-100 rounded-t-xl flex items-center justify-center">
                     <span className="text-4xl">{course.image}</span>
                   </div>
                   <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getLevelColor(course.level)}`}>
-                          {course.level}
-                        </span>
-                        {course.isEnrolled && (
-                          <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs font-medium">
-                            Enrolled
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-lg font-bold text-primary-600">
-                        ₹{course.price}
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`badge text-xs ${
+                        course.level === 'beginner' ? 'badge-secondary' : 
+                        course.level === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {course.level}
                       </span>
+                      <div className="flex items-center space-x-1 text-sm text-secondary-600">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span>{course.rating}</span>
+                        <span>({course.reviews})</span>
+                      </div>
                     </div>
 
-                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+                    <h3 className="text-xl font-semibold text-secondary-900 mb-2 line-clamp-2">
                       {course.title}
                     </h3>
-                    <p className="text-secondary-600 text-sm mb-4 line-clamp-2">
+                    
+                    <p className="text-secondary-600 text-sm mb-4 line-clamp-3">
                       {course.description}
                     </p>
 
-                    {/* Instructor */}
                     <div className="flex items-center space-x-2 mb-4">
-                      <span className="text-lg">{course.instructorAvatar}</span>
-                      <span className="text-sm font-medium text-secondary-900">
-                        {course.instructor}
-                      </span>
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full flex items-center justify-center text-sm">
+                        {course.instructorAvatar}
+                      </div>
+                      <span className="text-sm text-secondary-700">{course.instructor}</span>
                     </div>
 
-                    {/* Course Stats */}
-                    <div className="flex items-center justify-between text-sm text-secondary-600 mb-4">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{course.duration}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <BookOpen className="w-4 h-4" />
-                          <span>{course.lessons} lessons</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4" />
-                          <span>{course.students}</span>
-                        </div>
+                    <div className="grid grid-cols-3 gap-4 mb-4 text-center text-sm">
+                      <div>
+                        <div className="text-secondary-900 font-medium">{course.lessons}</div>
+                        <div className="text-secondary-600 text-xs">Lessons</div>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        <span>{course.rating}</span>
+                      <div>
+                        <div className="text-secondary-900 font-medium">{course.duration}</div>
+                        <div className="text-secondary-600 text-xs">Duration</div>
+                      </div>
+                      <div>
+                        <div className="text-secondary-900 font-medium">{course.students}</div>
+                        <div className="text-secondary-600 text-xs">Students</div>
                       </div>
                     </div>
 
-                    {/* Progress Bar (if enrolled) */}
                     {course.isEnrolled && (
                       <div className="mb-4">
                         <div className="flex items-center justify-between text-sm mb-1">
@@ -373,203 +218,188 @@ const EducationHubPage = () => {
                       </div>
                     )}
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {course.tags.map((tag, index) => (
-                        <span key={index} className="badge-secondary text-xs">
-                          {tag}
-                        </span>
-                      ))}
+                    <div className="flex items-center justify-between">
+                      <div className="text-xl font-bold text-primary-600">
+                        ₹{course.price}
+                      </div>
+                      {course.isEnrolled ? (
+                        <button className="btn-primary">
+                          <Play className="w-4 h-4 mr-1" />
+                          Continue
+                        </button>
+                      ) : (
+                        <button 
+                          className="btn-primary"
+                          onClick={() => enrollInCourse(course.id)}
+                        >
+                          <BookOpen className="w-4 h-4 mr-1" />
+                          Enroll Now
+                        </button>
+                      )}
                     </div>
-
-                    {/* Action Button */}
-                    <button className={`w-full ${course.isEnrolled ? 'btn-primary' : 'btn-outline'}`}>
-                      {course.isEnrolled ? 'Continue Learning' : 'Enroll Now'}
-                    </button>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="col-span-3">
+                  <div className="card">
+                    <div className="card-body text-center py-12">
+                      <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <GraduationCap className="w-12 h-12 text-secondary-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+                        No courses available yet
+                      </h3>
+                      <p className="text-secondary-600">
+                        Educational courses will be added by the admin and appear here.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          </>
         )}
 
-        {/* Tutorials Tab */}
-        {activeTab === 'tutorials' && (
-          <div className="space-y-4">
-            {tutorials.map((tutorial) => (
-              <div key={tutorial.id} className="card">
-                <div className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-accent-100 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
-                      {tutorial.thumbnail}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-secondary-900 hover:text-primary-600 cursor-pointer">
-                          {tutorial.title}
-                        </h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(tutorial.difficulty)}`}>
-                          {tutorial.difficulty}
-                        </span>
+        {activeTab === 'resources' && (
+          <>
+            {/* Search for Resources */}
+            <div className="card mb-6">
+              <div className="card-body">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Search resources..."
+                    className="input pl-10 w-full"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Resources Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredResources.length > 0 ? filteredResources.map((resource) => (
+                <div key={resource.id} className="card card-hover">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        resource.type === 'pdf' ? 'bg-red-100 text-red-600' :
+                        resource.type === 'video' ? 'bg-blue-100 text-blue-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>
+                        {resource.type === 'pdf' ? <FileText className="w-6 h-6" /> :
+                         resource.type === 'video' ? <Video className="w-6 h-6" /> :
+                         <BookOpen className="w-6 h-6" />}
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-secondary-600 mb-3">
-                        <span>{tutorial.author}</span>
+                      <span className="badge-secondary text-xs">{resource.category}</span>
+                    </div>
+
+                    <h3 className="text-lg font-semibold text-secondary-900 mb-2 line-clamp-2">
+                      {resource.title}
+                    </h3>
+                    
+                    <p className="text-secondary-600 text-sm mb-4 line-clamp-3">
+                      {resource.description}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 text-sm text-secondary-600">
                         <div className="flex items-center space-x-1">
-                          {tutorial.type === 'video' ? (
-                            <>
-                              <Play className="w-4 h-4" />
-                              <span>{tutorial.duration}</span>
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="w-4 h-4" />
-                              <span>{tutorial.readTime}</span>
-                            </>
-                          )}
+                          <Clock className="w-4 h-4" />
+                          <span>{resource.duration}</span>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4" />
-                          <span>{tutorial.views} views</span>
+                          <Download className="w-4 h-4" />
+                          <span>{resource.downloads}</span>
                         </div>
-                        <span>{new Date(tutorial.publishedAt).toLocaleDateString()}</span>
                       </div>
                       <button className="btn-primary btn-sm">
-                        {tutorial.type === 'video' ? (
-                          <>
-                            <Play className="w-4 h-4 mr-1" />
-                            Watch Now
-                          </>
-                        ) : (
-                          <>
-                            <BookOpen className="w-4 h-4 mr-1" />
-                            Read Article
-                          </>
-                        )}
+                        <Download className="w-4 h-4 mr-1" />
+                        Access
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              )) : (
+                <div className="col-span-3">
+                  <div className="card">
+                    <div className="card-body text-center py-12">
+                      <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FileText className="w-12 h-12 text-secondary-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+                        No resources available yet
+                      </h3>
+                      <p className="text-secondary-600">
+                        Educational resources will be added by the admin and appear here.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
 
-        {/* Guides Tab */}
-        {activeTab === 'guides' && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {guides.map((guide) => (
-              <div key={guide.id} className="card card-hover">
+        {activeTab === 'achievements' && (
+          <div className="space-y-6">
+            {achievements.length > 0 ? achievements.map((achievement) => (
+              <div key={achievement.id} className="card">
                 <div className="p-6">
-                  <div className="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center text-3xl mx-auto mb-4">
-                    {guide.icon}
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                      achievement.type === 'course' ? 'bg-blue-100 text-blue-600' :
+                      achievement.type === 'quiz' ? 'bg-green-100 text-green-600' :
+                      'bg-yellow-100 text-yellow-600'
+                    }`}>
+                      {achievement.type === 'course' ? <GraduationCap className="w-8 h-8" /> :
+                       achievement.type === 'quiz' ? <Trophy className="w-8 h-8" /> :
+                       <Award className="w-8 h-8" />}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-secondary-900 mb-1">
+                        {achievement.title}
+                      </h3>
+                      <p className="text-secondary-600 mb-2">
+                        {achievement.description}
+                      </p>
+                      <div className="text-sm text-secondary-500">
+                        Earned on {new Date(achievement.earnedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-primary-600">
+                        {achievement.points}
+                      </div>
+                      <div className="text-sm text-secondary-600">Points</div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2 text-center">
-                    {guide.title}
+                </div>
+              </div>
+            )) : (
+              <div className="card">
+                <div className="card-body text-center py-12">
+                  <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Trophy className="w-12 h-12 text-secondary-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+                    No achievements yet
                   </h3>
-                  <p className="text-secondary-600 text-sm mb-4 text-center line-clamp-2">
-                    {guide.description}
+                  <p className="text-secondary-600 mb-4">
+                    Complete courses and quizzes to earn your first achievement!
                   </p>
-                  <div className="flex items-center justify-between text-xs text-secondary-600 mb-4">
-                    <span>{guide.downloadCount} downloads</span>
-                    <span>{guide.fileSize} • {guide.type}</span>
-                  </div>
-                  <button className="btn-primary w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Guide
+                  <button 
+                    className="btn-primary"
+                    onClick={() => setActiveTab('courses')}
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Start Learning
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Achievements Tab */}
-        {activeTab === 'achievements' && (
-          <div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {achievements.map((achievement) => (
-                <div key={achievement.id} className={`card ${achievement.unlocked ? 'bg-green-50 border-green-200' : ''}`}>
-                  <div className="p-6 text-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 ${
-                      achievement.unlocked ? 'bg-green-100' : 'bg-secondary-100'
-                    }`}>
-                      {achievement.icon}
-                    </div>
-                    <h3 className={`text-lg font-semibold mb-2 ${
-                      achievement.unlocked ? 'text-green-900' : 'text-secondary-900'
-                    }`}>
-                      {achievement.title}
-                    </h3>
-                    <p className={`text-sm mb-4 ${
-                      achievement.unlocked ? 'text-green-700' : 'text-secondary-600'
-                    }`}>
-                      {achievement.description}
-                    </p>
-                    
-                    {!achievement.unlocked && achievement.progress > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-secondary-600">Progress</span>
-                          <span className="text-secondary-900 font-medium">{achievement.progress}%</span>
-                        </div>
-                        <div className="w-full bg-secondary-200 rounded-full h-2">
-                          <div 
-                            className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${achievement.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
-
-                    {achievement.unlocked && (
-                      <div className="flex items-center justify-center space-x-1 text-green-600">
-                        <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm font-medium">Unlocked!</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Learning Path */}
-            <div className="card mt-8">
-              <div className="card-header">
-                <h2 className="text-xl font-semibold text-secondary-900">Recommended Learning Path</h2>
-              </div>
-              <div className="card-body">
-                <div className="grid md:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Target className="w-6 h-6 text-green-600" />
-                    </div>
-                    <h3 className="font-semibold text-secondary-900 mb-2">1. Basics</h3>
-                    <p className="text-sm text-secondary-600">Start with introduction course</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Lightbulb className="w-6 h-6 text-yellow-600" />
-                    </div>
-                    <h3 className="font-semibold text-secondary-900 mb-2">2. Practice</h3>
-                    <p className="text-sm text-secondary-600">Follow tutorials and guides</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <BookOpen className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-secondary-900 mb-2">3. Specialize</h3>
-                    <p className="text-sm text-secondary-600">Take advanced specialized courses</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Trophy className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <h3 className="font-semibold text-secondary-900 mb-2">4. Expert</h3>
-                    <p className="text-sm text-secondary-600">Become a certified expert</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>

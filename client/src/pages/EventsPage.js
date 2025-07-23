@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
   MapPin, 
@@ -13,92 +13,35 @@ import {
   Bookmark,
   ExternalLink,
   Award,
-  Info
+  Info,
+  CalendarX
 } from 'lucide-react';
 
 const EventsPage = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [events, setEvents] = useState([]);
 
-  // Sample events data
-  const events = [
-    {
-      id: '1',
-      title: 'National Philatelic Exhibition 2024',
-      description: 'The largest philatelic exhibition in India featuring rare stamps, first day covers, and postal history.',
-      type: 'exhibition',
-      date: '2024-03-15',
-      endDate: '2024-03-17',
-      time: '10:00 AM - 6:00 PM',
-      venue: 'Pragati Maidan, New Delhi',
-      city: 'Delhi',
-      organizer: 'India Post & Philatelic Society of India',
-      registrationFee: 500,
-      maxAttendees: 5000,
-      currentAttendees: 2847,
-      status: 'upcoming',
-      image: '🏛️',
-      features: ['Rare stamp displays', 'Expert talks', 'Trading floor', 'Workshops'],
-      tags: ['exhibition', 'national', 'delhi', 'rare-stamps']
-    },
-    {
-      id: '2',
-      title: 'Collectors\' Meet & Swap - Mumbai',
-      description: 'Monthly collectors meet where enthusiasts can trade, share knowledge, and discover new additions.',
-      type: 'meetup',
-      date: '2024-02-10',
-      time: '3:00 PM - 7:00 PM',
-      venue: 'Mumbai Philatelic Society Hall',
-      city: 'Mumbai',
-      organizer: 'Mumbai Collectors Club',
-      registrationFee: 100,
-      maxAttendees: 150,
-      currentAttendees: 89,
-      status: 'upcoming',
-      image: '🤝',
-      features: ['Stamp trading', 'Expert guidance', 'Networking', 'Refreshments'],
-      tags: ['meetup', 'mumbai', 'trading', 'networking']
-    },
-    {
-      id: '3',
-      title: 'Gandhi Commemorative Stamps Symposium',
-      description: 'Special symposium focusing on Gandhi commemorative stamps and their historical significance.',
-      type: 'conference',
-      date: '2024-02-25',
-      time: '9:00 AM - 5:00 PM',
-      venue: 'Indian Institute of Technology, Chennai',
-      city: 'Chennai',
-      organizer: 'Gandhi Memorial Philatelic Society',
-      registrationFee: 750,
-      maxAttendees: 300,
-      currentAttendees: 156,
-      status: 'upcoming',
-      image: '🕊️',
-      features: ['Expert lectures', 'Research presentations', 'Q&A sessions', 'Certificate'],
-      tags: ['conference', 'gandhi', 'chennai', 'educational']
-    },
-    {
-      id: '4',
-      title: 'South India Philatelic Convention',
-      description: 'Annual convention bringing together collectors from across South India.',
-      type: 'convention',
-      date: '2024-01-20',
-      endDate: '2024-01-21',
-      time: '9:00 AM - 6:00 PM',
-      venue: 'Bangalore International Exhibition Centre',
-      city: 'Bangalore',
-      organizer: 'South India Philatelic Federation',
-      registrationFee: 600,
-      maxAttendees: 800,
-      currentAttendees: 672,
-      status: 'past',
-      image: '🎪',
-      features: ['Regional displays', 'Cultural programs', 'Awards ceremony', 'Food court'],
-      tags: ['convention', 'south-india', 'bangalore', 'awards']
+  useEffect(() => {
+    // Load events from localStorage (managed by admin)
+    const storedEvents = localStorage.getItem('admin_events');
+    if (storedEvents) {
+      setEvents(JSON.parse(storedEvents));
     }
-  ];
+  }, []);
 
+  // Filter events based on tab, search, and city
+  const filteredEvents = events.filter(event => {
+    const matchesTab = activeTab === 'all' || event.status === activeTab;
+    const matchesSearch = searchTerm === '' || 
+      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCity = selectedCity === '' || event.city === selectedCity;
+    return matchesTab && matchesSearch && matchesCity;
+  });
+
+  // Cities for filtering (can be made dynamic)
   const cities = [
     { value: '', label: 'All Cities' },
     { value: 'Delhi', label: 'Delhi' },
@@ -108,23 +51,14 @@ const EventsPage = () => {
     { value: 'Kolkata', label: 'Kolkata' }
   ];
 
+  // Event types configuration
   const eventTypes = [
     { type: 'exhibition', icon: '🏛️', color: 'bg-blue-100 text-blue-600' },
     { type: 'meetup', icon: '🤝', color: 'bg-green-100 text-green-600' },
-    { type: 'conference', icon: '🎓', color: 'bg-purple-100 text-purple-600' },
-    { type: 'convention', icon: '🎪', color: 'bg-orange-100 text-orange-600' }
+    { type: 'convention', icon: '🎪', color: 'bg-purple-100 text-purple-600' },
+    { type: 'auction', icon: '🔨', color: 'bg-orange-100 text-orange-600' },
+    { type: 'workshop', icon: '🎓', color: 'bg-indigo-100 text-indigo-600' }
   ];
-
-  const filteredEvents = events.filter(event => {
-    const matchesTab = activeTab === 'all' || 
-                      (activeTab === 'upcoming' && event.status === 'upcoming') ||
-                      (activeTab === 'past' && event.status === 'past');
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.city.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCity = !selectedCity || event.city === selectedCity;
-    return matchesTab && matchesSearch && matchesCity;
-  });
 
   const getEventTypeInfo = (type) => {
     return eventTypes.find(t => t.type === type) || eventTypes[0];
@@ -151,6 +85,13 @@ const EventsPage = () => {
     return `${diffDays} days away`;
   };
 
+  // Tab configuration
+  const tabs = [
+    { id: 'upcoming', label: 'Upcoming' },
+    { id: 'past', label: 'Past Events' },
+    { id: 'all', label: 'All Events' }
+  ];
+
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="container-custom py-8">
@@ -161,22 +102,14 @@ const EventsPage = () => {
               Events & Exhibitions
             </h1>
             <p className="text-secondary-600">
-              Discover philatelic events, exhibitions, and meetups near you
+              Discover philatelic events, exhibitions and meetups
             </p>
           </div>
-          <button className="btn-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Event
-          </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center space-x-1 bg-white rounded-lg p-1 mb-6 w-fit">
-          {[
-            { id: 'upcoming', label: 'Upcoming Events' },
-            { id: 'past', label: 'Past Events' },
-            { id: 'all', label: 'All Events' }
-          ].map((tab) => (
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-8">
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -224,82 +157,72 @@ const EventsPage = () => {
 
         {/* Events Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {filteredEvents.map((event) => {
+          {filteredEvents.length > 0 ? filteredEvents.map((event) => {
             const typeInfo = getEventTypeInfo(event.type);
             const attendancePercentage = (event.currentAttendees / event.maxAttendees) * 100;
             
             return (
               <div key={event.id} className="card card-hover">
                 <div className="p-6">
-                  {/* Header */}
+                  {/* Event Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-accent-100 rounded-xl flex items-center justify-center">
-                        <span className="text-2xl">{event.image}</span>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${typeInfo.color}`}>
+                        <span className="text-xl">{typeInfo.icon}</span>
                       </div>
                       <div>
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
-                            {event.type}
-                          </span>
-                          {event.status === 'upcoming' && (
-                            <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs font-medium">
-                              {getDaysUntilEvent(event.date)}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-lg font-semibold text-secondary-900 hover:text-primary-600 cursor-pointer">
+                        <h3 className="text-xl font-semibold text-secondary-900 mb-1">
                           {event.title}
                         </h3>
+                        <p className="text-sm text-secondary-600">
+                          by {event.organizer}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <button className="p-1 text-secondary-600 hover:text-primary-600">
-                        <Bookmark className="w-4 h-4" />
-                      </button>
-                      <button className="p-1 text-secondary-600 hover:text-primary-600">
-                        <Share2 className="w-4 h-4" />
-                      </button>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-secondary-900">
+                        {formatDate(event.date)}
+                      </div>
+                      <div className="text-xs text-secondary-500">
+                        {getDaysUntilEvent(event.date)}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Description */}
+                  {/* Event Details */}
                   <p className="text-secondary-600 text-sm mb-4 line-clamp-2">
                     {event.description}
                   </p>
 
-                  {/* Event Details */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-secondary-600">
-                      <Calendar className="w-4 h-4 mr-2 text-primary-600" />
-                      <span>
-                        {formatDate(event.date)}
-                        {event.endDate && ` - ${formatDate(event.endDate)}`}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm text-secondary-600">
-                      <Clock className="w-4 h-4 mr-2 text-primary-600" />
+                  {/* Event Info */}
+                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <div className="flex items-center space-x-2 text-secondary-600">
+                      <Calendar className="w-4 h-4" />
                       <span>{event.time}</span>
                     </div>
-                    <div className="flex items-center text-sm text-secondary-600">
-                      <MapPin className="w-4 h-4 mr-2 text-primary-600" />
-                      <span>{event.venue}, {event.city}</span>
+                    <div className="flex items-center space-x-2 text-secondary-600">
+                      <MapPin className="w-4 h-4" />
+                      <span className="truncate">{event.venue}</span>
                     </div>
-                    <div className="flex items-center text-sm text-secondary-600">
-                      <Users className="w-4 h-4 mr-2 text-primary-600" />
-                      <span>{event.organizer}</span>
+                    <div className="flex items-center space-x-2 text-secondary-600">
+                      <Users className="w-4 h-4" />
+                      <span>{event.currentAttendees}/{event.maxAttendees} attending</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-secondary-600">
+                      <MapPin className="w-4 h-4" />
+                      <span>{event.city}</span>
                     </div>
                   </div>
 
                   {/* Features */}
                   <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      {event.features.slice(0, 3).map((feature, index) => (
+                    <div className="flex flex-wrap gap-2">
+                      {event.features?.slice(0, 3).map((feature, index) => (
                         <span key={index} className="badge-secondary text-xs">
                           {feature}
                         </span>
                       ))}
-                      {event.features.length > 3 && (
+                      {event.features?.length > 3 && (
                         <span className="badge-secondary text-xs">
                           +{event.features.length - 3} more
                         </span>
@@ -346,31 +269,24 @@ const EventsPage = () => {
                 </div>
               </div>
             );
-          })}
-        </div>
-
-        {filteredEvents.length === 0 && (
-          <div className="card">
-            <div className="card-body text-center py-12">
-              <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-12 h-12 text-secondary-400" />
+          }) : (
+            <div className="col-span-2">
+              <div className="card">
+                <div className="card-body text-center py-12">
+                  <div className="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CalendarX className="w-12 h-12 text-secondary-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+                    No events yet
+                  </h3>
+                  <p className="text-secondary-600">
+                    Events will be published by the admin and appear here.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-secondary-900 mb-2">
-                No events found
-              </h3>
-              <p className="text-secondary-600 mb-4">
-                {searchTerm || selectedCity 
-                  ? 'Try adjusting your search criteria.'
-                  : `No ${activeTab} events at the moment. Check back later for updates.`
-                }
-              </p>
-              <button className="btn-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                Create New Event
-              </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Event Statistics */}
         {filteredEvents.length > 0 && (
@@ -386,21 +302,23 @@ const EventsPage = () => {
                 <p className="text-sm text-secondary-600">Upcoming Events</p>
               </div>
             </div>
+            
             <div className="card">
               <div className="card-body text-center">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Users className="w-6 h-6 text-green-600" />
                 </div>
                 <p className="text-2xl font-bold text-secondary-900">
-                  {events.reduce((sum, event) => sum + event.currentAttendees, 0)}
+                  {events.reduce((sum, e) => sum + (e.currentAttendees || 0), 0)}
                 </p>
                 <p className="text-sm text-secondary-600">Total Attendees</p>
               </div>
             </div>
+            
             <div className="card">
               <div className="card-body text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <MapPin className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <MapPin className="w-6 h-6 text-orange-600" />
                 </div>
                 <p className="text-2xl font-bold text-secondary-900">
                   {new Set(events.map(e => e.city)).size}
@@ -408,15 +326,16 @@ const EventsPage = () => {
                 <p className="text-sm text-secondary-600">Cities</p>
               </div>
             </div>
+            
             <div className="card">
               <div className="card-body text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Award className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Star className="w-6 h-6 text-purple-600" />
                 </div>
                 <p className="text-2xl font-bold text-secondary-900">
-                  {eventTypes.length}
+                  {events.filter(e => e.status === 'past').length}
                 </p>
-                <p className="text-sm text-secondary-600">Event Types</p>
+                <p className="text-sm text-secondary-600">Past Events</p>
               </div>
             </div>
           </div>

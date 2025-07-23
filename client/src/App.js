@@ -18,6 +18,7 @@ import OrderDetailPage from './pages/user/OrderDetailPage';
 import WishlistPage from './pages/user/WishlistPage';
 import ProfilePage from './pages/user/ProfilePage';
 import CollectionPage from './pages/user/CollectionPage';
+import WalletPage from './pages/user/WalletPage';
 import CommunityForumPage from './pages/CommunityForumPage';
 import NewsPage from './pages/NewsPage';
 import EventsPage from './pages/EventsPage';
@@ -84,6 +85,11 @@ function App() {
           <Route path="collection" element={
             <ProtectedRoute>
               <CollectionPage />
+            </ProtectedRoute>
+          } />
+          <Route path="wallet" element={
+            <ProtectedRoute>
+              <WalletPage />
             </ProtectedRoute>
           } />
           

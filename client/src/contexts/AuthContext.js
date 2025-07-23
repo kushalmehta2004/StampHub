@@ -201,8 +201,19 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     dispatch({ type: 'LOGOUT' });
     toast.success('Logged out successfully');
+  };
+
+  // Update user function (for wallet balance, etc.)
+  const updateUser = (userData) => {
+    dispatch({
+      type: 'UPDATE_USER',
+      payload: userData,
+    });
+    // Update localStorage
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   // Update user profile
@@ -244,6 +255,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
     updateProfile,
     changePassword,
     clearError,

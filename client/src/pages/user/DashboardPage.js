@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Wallet, 
@@ -17,32 +17,48 @@ import QuickActions from '../../components/dashboard/QuickActions';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [dashboardData, setDashboardData] = useState({
+    balance: 0,
+    recentOrders: [],
+    wishlistCount: 0,
+    totalOrders: 0,
+    totalSpent: 0
+  });
 
-  // Sample data (in real app, this would come from API)
-  const dashboardData = {
-    balance: 1250.50,
-    recentOrders: [
-      { 
-        id: 'ORD-001', 
-        items: 2, 
-        total: 25, 
-        status: 'delivered', 
-        date: '2024-01-14',
-        itemName: 'Gandhi 150th Anniversary'
-      },
-      { 
-        id: 'ORD-002', 
-        items: 1, 
-        total: 15, 
-        status: 'shipped', 
-        date: '2024-01-12',
-        itemName: 'Kerala Backwaters'
-      }
-    ],
-    wishlistCount: 8,
-    totalOrders: 12,
-    totalSpent: 450.75
-  };
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Get wallet balance from localStorage
+    const storedBalance = localStorage.getItem(`wallet_${user?.id}`);
+    const balance = storedBalance ? parseFloat(storedBalance) : (user?.walletBalance || 0);
+    setWalletBalance(balance);
+
+    // Get orders from localStorage
+    const storedOrders = JSON.parse(localStorage.getItem(`orders_${user?.id}`) || '[]');
+    
+    // Get wishlist from localStorage (assuming you have a wishlist system)
+    const storedWishlist = JSON.parse(localStorage.getItem(`wishlist_${user?.id}`) || '[]');
+
+    // Calculate dashboard stats
+    const totalSpent = storedOrders.reduce((sum, order) => sum + order.total, 0);
+    const recentOrders = storedOrders.slice(0, 3).map(order => ({
+      id: order.id,
+      items: order.items.length,
+      total: order.total,
+      status: order.status,
+      date: order.date,
+      itemName: order.items[0]?.name || 'Multiple items'
+    }));
+
+    setDashboardData({
+      balance: balance,
+      recentOrders: recentOrders,
+      wishlistCount: storedWishlist.length,
+      totalOrders: storedOrders.length,
+      totalSpent: totalSpent
+    });
+  }, [user]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -52,6 +68,8 @@ const DashboardPage = () => {
         return <Package className="w-4 h-4 text-blue-600" />;
       case 'processing':
         return <Clock className="w-4 h-4 text-yellow-600" />;
+      case 'confirmed':
+        return <CheckCircle className="w-4 h-4 text-blue-600" />;
       default:
         return <AlertCircle className="w-4 h-4 text-secondary-400" />;
     }
@@ -65,9 +83,18 @@ const DashboardPage = () => {
         return 'text-blue-600 bg-blue-50';
       case 'processing':
         return 'text-yellow-600 bg-yellow-50';
+      case 'confirmed':
+        return 'text-blue-600 bg-blue-50';
       default:
         return 'text-secondary-600 bg-secondary-50';
     }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
   };
 
   return (
@@ -92,15 +119,15 @@ const DashboardPage = () => {
                 <div>
                   <p className="text-sm text-secondary-600 mb-1">Account Balance</p>
                   <p className="text-2xl font-bold text-primary-600">
-                    ₹{dashboardData.balance.toFixed(2)}
+                    {formatCurrency(dashboardData.balance)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
                   <Wallet className="w-6 h-6 text-primary-600" />
                 </div>
               </div>
-              <Link to="/profile" className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-2 inline-block">
-                Add Funds →
+              <Link to="/wallet" className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-2 inline-block">
+                Manage Wallet →
               </Link>
             </div>
           </div>
