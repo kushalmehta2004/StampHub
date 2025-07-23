@@ -1,0 +1,28 @@
+{
+  "name": "national-philately-platform",
+  "version": "1.0.0",
+  "description": "National Web Community of Philatelists - Centralized platform for philatelic material access and ordering",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-all": "npm run install-server && npm run install-client",
+    "start": "cd server && npm start"
+  },
+  "keywords": [
+    "philately",
+    "stamps",
+    "postal",
+    "e-commerce",
+    "community"
+  ],
+  "author": "National Philately Platform Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
