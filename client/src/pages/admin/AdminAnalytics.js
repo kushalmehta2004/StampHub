@@ -36,111 +36,48 @@ const AdminAnalytics = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Sample analytics data
+  // Analytics data - will be fetched from API
   const sampleAnalytics = {
     overview: {
-      totalRevenue: 125000,
-      revenueGrowth: 12.5,
-      totalOrders: 1245,
-      ordersGrowth: 8.3,
-      totalUsers: 3450,
-      usersGrowth: 15.7,
-      conversionRate: 3.2,
-      conversionGrowth: -2.1,
-      avgOrderValue: 850,
-      aovGrowth: 5.4,
-      totalSessions: 12500,
-      sessionsGrowth: 18.2,
-      bounceRate: 42.5,
-      bounceGrowth: -5.3,
-      pageViews: 45600,
-      pageViewsGrowth: 22.1
+      totalRevenue: 0,
+      revenueGrowth: 0,
+      totalOrders: 0,
+      ordersGrowth: 0,
+      totalUsers: 0,
+      usersGrowth: 0,
+      conversionRate: 0,
+      conversionGrowth: 0,
+      avgOrderValue: 0,
+      aovGrowth: 0,
+      totalSessions: 0,
+      sessionsGrowth: 0,
+      bounceRate: 0,
+      bounceGrowth: 0,
+      pageViews: 0,
+      pageViewsGrowth: 0
     },
     sales: {
-      dailySales: [
-        { date: '2024-01-16', revenue: 12500, orders: 45 },
-        { date: '2024-01-17', revenue: 15200, orders: 52 },
-        { date: '2024-01-18', revenue: 18900, orders: 67 },
-        { date: '2024-01-19', revenue: 14300, orders: 48 },
-        { date: '2024-01-20', revenue: 21000, orders: 73 },
-        { date: '2024-01-21', revenue: 19500, orders: 65 },
-        { date: '2024-01-22', revenue: 23600, orders: 81 }
-      ],
-      topProducts: [
-        { name: 'Gandhi 150th Anniversary', sales: 245, revenue: 6125 },
-        { name: 'Kerala Backwaters Series', sales: 189, revenue: 2835 },
-        { name: 'Mysore Palace Heritage', sales: 156, revenue: 4680 },
-        { name: 'Wildlife Conservation Set', sales: 134, revenue: 6030 },
-        { name: 'Freedom Fighters Series', sales: 98, revenue: 7350 }
-      ],
-      salesByCategory: [
-        { category: 'Commemorative', percentage: 35, revenue: 43750 },
-        { category: 'Heritage', percentage: 28, revenue: 35000 },
-        { category: 'Wildlife', percentage: 20, revenue: 25000 },
-        { category: 'Cultural', percentage: 17, revenue: 21250 }
-      ],
-      paymentMethods: [
-        { method: 'Razorpay', percentage: 45, amount: 56250 },
-        { method: 'UPI', percentage: 30, amount: 37500 },
-        { method: 'COD', percentage: 20, amount: 25000 },
-        { method: 'Card', percentage: 5, amount: 6250 }
-      ]
+      dailySales: [],
+      topProducts: [],
+      salesByCategory: [],
+      paymentMethods: []
     },
     users: {
-      userGrowth: [
-        { date: '2024-01-16', newUsers: 45, totalUsers: 3200 },
-        { date: '2024-01-17', newUsers: 52, totalUsers: 3252 },
-        { date: '2024-01-18', newUsers: 38, totalUsers: 3290 },
-        { date: '2024-01-19', newUsers: 67, totalUsers: 3357 },
-        { date: '2024-01-20', newUsers: 43, totalUsers: 3400 },
-        { date: '2024-01-21', newUsers: 28, totalUsers: 3428 },
-        { date: '2024-01-22', newUsers: 22, totalUsers: 3450 }
-      ],
-      userTypes: [
-        { type: 'Regular', count: 2415, percentage: 70 },
-        { type: 'Premium', count: 690, percentage: 20 },
-        { type: 'Collector', count: 276, percentage: 8 },
-        { type: 'Dealer', count: 69, percentage: 2 }
-      ],
-      topLocations: [
-        { city: 'Mumbai', state: 'Maharashtra', users: 456 },
-        { city: 'Delhi', state: 'Delhi', users: 398 },
-        { city: 'Bangalore', state: 'Karnataka', users: 345 },
-        { city: 'Chennai', state: 'Tamil Nadu', users: 267 },
-        { city: 'Kolkata', state: 'West Bengal', users: 234 }
-      ],
-      deviceTypes: [
-        { device: 'Mobile', percentage: 65, users: 2242 },
-        { device: 'Desktop', percentage: 30, users: 1035 },
-        { device: 'Tablet', percentage: 5, users: 173 }
-      ]
+      userGrowth: [],
+      userTypes: [],
+      topLocations: [],
+      deviceTypes: []
     },
     engagement: {
-      pageViews: [
-        { page: '/catalog', views: 12500, uniqueViews: 8900 },
-        { page: '/news', views: 8900, uniqueViews: 6200 },
-        { page: '/events', views: 6700, uniqueViews: 4800 },
-        { page: '/education', views: 5400, uniqueViews: 3900 },
-        { page: '/community', views: 4200, uniqueViews: 3100 }
-      ],
-      socialShares: [
-        { platform: 'WhatsApp', shares: 1245 },
-        { platform: 'Facebook', shares: 892 },
-        { platform: 'Twitter', shares: 567 },
-        { platform: 'Instagram', shares: 234 }
-      ],
-      contentPerformance: [
-        { title: 'New Commemorative Stamps Released', views: 4500, engagement: 85 },
-        { title: 'Mysore Palace Series Wins Award', views: 3200, engagement: 72 },
-        { title: 'Digital Philately Workshop', views: 2800, engagement: 68 },
-        { title: 'Rare Gandhi Stamp Auction', views: 3800, engagement: 91 }
-      ],
+      pageViews: [],
+      socialShares: [],
+      contentPerformance: [],
       userEngagement: {
-        avgSessionDuration: '4m 32s',
-        pagesPerSession: 3.4,
-        returnVisitorRate: 34.5,
-        emailOpenRate: 28.7,
-        emailClickRate: 4.2
+        avgSessionDuration: '0m 0s',
+        pagesPerSession: 0,
+        returnVisitorRate: 0,
+        emailOpenRate: 0,
+        emailClickRate: 0
       }
     }
   };

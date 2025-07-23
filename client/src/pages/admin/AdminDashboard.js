@@ -26,53 +26,53 @@ const AdminDashboard = () => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [pendingActions, setPendingActions] = useState([]);
 
-  // Sample dashboard data - In real app, this would come from API
+  // Dashboard data - will be fetched from API
   const stats = [
     {
       title: 'Total Users',
-      value: '1,234',
-      change: '+12%',
-      changeType: 'positive',
+      value: '0',
+      change: '0%',
+      changeType: 'neutral',
       icon: Users,
       color: 'blue'
     },
     {
       title: 'Catalog Items',
-      value: '856',
-      change: '+5%',
-      changeType: 'positive',
+      value: '0',
+      change: '0%',
+      changeType: 'neutral',
       icon: Package,
       color: 'green'
     },
     {
       title: 'Total Orders',
-      value: '2,341',
-      change: '+18%',
-      changeType: 'positive',
+      value: '0',
+      change: '0%',
+      changeType: 'neutral',
       icon: ShoppingCart,
       color: 'purple'
     },
     {
       title: 'Revenue',
-      value: '₹1,23,450',
-      change: '+25%',
-      changeType: 'positive',
+      value: '₹0',
+      change: '0%',
+      changeType: 'neutral',
       icon: DollarSign,
       color: 'yellow'
     },
     {
       title: 'News Articles',
-      value: '42',
-      change: '+3%',
-      changeType: 'positive',
+      value: '0',
+      change: '0%',
+      changeType: 'neutral',
       icon: FileText,
       color: 'indigo'
     },
     {
       title: 'Active Events',
-      value: '8',
-      change: '+2%',
-      changeType: 'positive',
+      value: '0',
+      change: '0%',
+      changeType: 'neutral',
       icon: Calendar,
       color: 'red'
     }
@@ -129,96 +129,33 @@ const AdminDashboard = () => {
     }
   ];
 
-  const recentActivityData = [
-    {
-      id: '1',
-      type: 'order',
-      message: 'New order #ORD-001 received',
-      user: 'Priya Sharma',
-      timestamp: '5 minutes ago',
-      status: 'pending',
-      icon: ShoppingCart,
-      color: 'text-blue-600'
-    },
-    {
-      id: '2',
-      type: 'user',
-      message: 'New user registration',
-      user: 'Amit Kumar',
-      timestamp: '15 minutes ago',
-      status: 'completed',
-      icon: Users,
-      color: 'text-green-600'
-    },
-    {
-      id: '3',
-      type: 'inventory',
-      message: 'Gandhi Anniversary stamp out of stock',
-      user: 'System',
-      timestamp: '1 hour ago',
-      status: 'warning',
-      icon: AlertCircle,
-      color: 'text-yellow-600'
-    },
-    {
-      id: '4',
-      type: 'article',
-      message: 'News article published',
-      user: 'Admin',
-      timestamp: '2 hours ago',
-      status: 'completed',
-      icon: FileText,
-      color: 'text-purple-600'
-    }
-  ];
+  const recentActivityData = [];
 
-  const pendingActionsData = [
-    {
-      id: '1',
-      title: 'Review Order Cancellation',
-      description: 'Order #ORD-045 cancellation request',
-      priority: 'high',
-      action: 'review'
-    },
-    {
-      id: '2',
-      title: 'Approve New Stamp Listing',
-      description: 'Mysore State stamp pending approval',
-      priority: 'medium',
-      action: 'approve'
-    },
-    {
-      id: '3',
-      title: 'Update Stock Levels',
-      description: '12 items need stock updates',
-      priority: 'low',
-      action: 'update'
-    }
-  ];
+  const pendingActionsData = [];
 
   const contentSummary = [
     {
       category: 'Stamps',
-      total: 856,
-      published: 798,
-      draft: 45,
-      outOfStock: 13,
+      total: 0,
+      published: 0,
+      draft: 0,
+      outOfStock: 0,
       color: 'blue'
     },
     {
       category: 'News',
-      total: 42,
-      published: 38,
-      draft: 4,
-      archived: 12,
+      total: 0,
+      published: 0,
+      draft: 0,
+      archived: 0,
       color: 'purple'
     },
     {
       category: 'Events',
-      total: 15,
-      active: 8,
-      upcoming: 5,
-      completed: 2,
+      total: 0,
+      active: 0,
+      upcoming: 0,
+      completed: 0,
       color: 'green'
     }
   ];
@@ -279,7 +216,7 @@ const AdminDashboard = () => {
             <button className="relative p-2 text-secondary-600 hover:text-primary-600 transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                3
+                0
               </span>
             </button>
             <Link to="/admin/settings" className="btn-outline btn-sm">
@@ -301,7 +238,7 @@ const AdminDashboard = () => {
                       <Icon className="w-6 h-6" />
                     </div>
                     <span className={`text-sm font-medium ${
-                      stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+                      stat.changeType === 'positive' ? 'text-green-600' : stat.changeType === 'negative' ? 'text-red-600' : 'text-gray-600'
                     }`}>
                       {stat.change}
                     </span>
